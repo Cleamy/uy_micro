@@ -1,0 +1,126 @@
+# config.yml
+app:
+  name: user-service
+  env: dev
+  version: v1.2.0
+
+logger:
+  level: info
+  format: json
+  file_path: ./logs/app.log
+  max_size: 200
+  max_backups: 30
+  max_age: 7
+  compress: true
+
+database:
+  enable: true
+  primary:
+    driver: mysql
+    host: 127.0.0.1
+    port: 3306
+    user: root
+    password: 123456
+    db_name: user_db
+    charset: utf8mb4
+    max_idle: 20
+    max_open: 200
+    max_lifetime: 3600
+
+redis:
+  enable: true
+  mode: single
+  addresses:
+    - 127.0.0.1:6379
+  password: ""
+  db: 0
+  pool_size: 50
+  min_idle: 10
+
+web:
+  enable: true
+  port: 8081
+  mode: release
+  context_path: /api
+  read_timeout: 30
+  write_timeout: 30
+
+grpc:
+  enable: true
+  port: 9001
+  reflection: true
+
+consul:
+  enable: true
+  address: 127.0.0.1:8500
+  tags:
+    - user
+    - v1
+    - dev
+  check:
+    interval: 15s
+    timeout: 3s
+    deregister: 60s
+
+sentinel:
+  enable: true
+  flow_rules:
+    - resource: "GET:/api/user/list"
+      threshold: 100
+      stat_interval_ms: 1000
+      control_behavior: 0
+  circuit_breaker_rules:
+    - resource: "user-service-rpc"
+      strategy: 1
+      threshold: 0.5
+      retry_timeout_s: 10
+      min_request: 20
+      stat_interval_ms: 10000
+
+gateway:
+  enable: true
+  port: 8000
+  context_path: /
+  cors:
+    enable: true
+    allow_origins:
+      - "*"
+    allow_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+    allow_credentials: false
+    max_age: 3600
+  auth:
+    enable: true
+    type: jwt
+    jwt_secret: uy_micro_secret_key_2024
+    jwt_expire: 24
+    exclude_paths:
+      - /api/user/login
+      - /health
+  ip_blacklist:
+    - 192.168.1.100
+  routes:
+    - id: user_route
+      path: /user/**
+      service_name: user-service
+      strip_prefix: true
+      auth_enable: true
+      rate_limit: true
+    - id: order_route
+      path: /order/**
+      target_url: http://127.0.0.1:8082
+      strip_prefix: true
+      auth_enable: true
+
+observability:
+  tracer:
+    enable: true
+    endpoint: http://127.0.0.1:14268/api/traces
+    service_name: user-service
+  metrics:
+    enable: true
+    path: /metrics
+    port: 9090
