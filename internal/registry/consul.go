@@ -149,3 +149,48 @@ func GetServiceGrpcTarget(serviceName string, passingOnly bool, strategy Balance
 func GetServiceGrpcTargetDefault(serviceName string, passingOnly bool) (string, error) {
 	return GetServiceGrpcTarget(serviceName, passingOnly, BalanceRoundRobin)
 }
+
+// GetServiceHttpTarget 获取服务 HTTP 地址，内置负载均衡（网关专用）
+func GetServiceHttpTarget(serviceName string, passingOnly bool) (string, error) {
+	return GetServiceHttpTargetWithStrategy(serviceName, passingOnly, BalanceRoundRobin)
+}
+
+func GetServiceHttpTargetWithStrategy(serviceName string, passingOnly bool, strategy BalanceStrategy) (string, error) {
+	services, _, err := global.Consul.Health().Service(serviceName, "", passingOnly, nil)
+	if err != nil {
+		global.Logger.Error("registry discover http service failed",
+			zap.String("service", serviceName), zap.Error(err))
+		return "", fmt.Errorf("discover %s err: %w", serviceName, err)
+	}
+	if len(services) == 0 {
+		return "", fmt.Errorf("no healthy http instance for service [%s]", serviceName)
+	}
+
+	var selectEntry *api.ServiceEntry
+	switch strategy {
+	case BalanceRandom:
+		idxMu.Lock()
+		r := rander.Intn(len(services))
+		selectEntry = services[r]
+		idxMu.Unlock()
+	case BalanceRoundRobin:
+		fallthrough
+	default:
+		idxMu.Lock()
+		idx := balanceIdxMap[serviceName+"_http"] % len(services)
+		selectEntry = services[idx]
+		balanceIdxMap[serviceName+"_http"]++
+		idxMu.Unlock()
+	}
+
+	svc := selectEntry.Service
+	target := svc.Address + ":" + strconv.Itoa(svc.Port)
+
+	global.Logger.Info("[RegistryBalance] select http instance success",
+		zap.String("service", serviceName),
+		zap.String("strategy", string(strategy)),
+		zap.String("instance_id", svc.ID),
+		zap.String("http_target", target))
+
+	return target, nil
+}

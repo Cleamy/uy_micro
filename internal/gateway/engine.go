@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 初始化网关
+
 func Init(cfg *config.GatewayConfig) (*gin.Engine, error) {
 	if !cfg.Enable {
 		return nil, nil

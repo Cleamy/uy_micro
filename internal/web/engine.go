@@ -14,17 +14,19 @@ func Init(cfg *config.WebConfig) (*gin.Engine, error) {
 	}
 	gin.SetMode(cfg.Mode)
 	engine := gin.New()
-	// 自定义日志中间件：过滤 /health，其余正常打印
+
+	// 自定义日志中间件：过滤健康接口
 	engine.Use(func(c *gin.Context) {
-		if c.Request.URL.Path == "/health" || c.Request.URL.Path == "/ping" {
+		path := c.Request.URL.Path
+		if path == "/health" || path == "/ping" {
 			c.Next()
 			return
 		}
 		gin.LoggerWithWriter(os.Stdout)(c)
 	})
-	engine.Use(gin.Logger(), gin.Recovery())
+	// 只保留崩溃恢复，移除重复的 gin.Logger()
+	engine.Use(gin.Recovery())
 
-	// 自动内置健康检测，无需用户手动编写
 	middleware.RegisterHealthRoute(engine)
 	return engine, nil
 }
