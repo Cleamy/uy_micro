@@ -1,5 +1,7 @@
 package config
 
+import "github.com/goccy/go-yaml"
+
 // AppConfig 根配置
 type AppConfig struct {
 	App           AppBasicConfig      `mapstructure:"app"`
@@ -219,4 +221,11 @@ type MetricsConfig struct {
 	Enable bool   `mapstructure:"enable"`
 	Path   string `mapstructure:"path"` // 指标暴露路径
 	Port   int    `mapstructure:"port"` // 指标端口
+}
+
+// LoadFromBytes 热更新解析yaml字节
+func LoadFromBytes(content []byte) (*AppConfig, error) {
+	var cfg AppConfig
+	err := yaml.Unmarshal(content, &cfg)
+	return &cfg, err
 }

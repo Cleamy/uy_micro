@@ -7,25 +7,27 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
 	"uy_micro/config"
 	"uy_micro/global"
 	"uy_micro/internal/gateway"
-	grpcclient "uy_micro/internal/grpc/grpcclient"
+	"uy_micro/internal/grpc/grpcclient"
 	grpcsvr "uy_micro/internal/grpc/grpcserver"
 	"uy_micro/internal/observability"
 	"uy_micro/internal/registry"
 	"uy_micro/internal/storage/database"
-	rediscli "uy_micro/internal/storage/redis" // 修正：正确路径 rediscli
+	"uy_micro/internal/storage/rediscli"
 	"uy_micro/internal/traffic"
 	"uy_micro/internal/web"
+	"uy_micro/pkg/validatorx"
 
 	"go.uber.org/zap"
 )
 
-var PostBootHooks []func()
+var PostBootHooks []func() // 启动后钩子
 
 // Bootstrap 按顺序初始化所有组件
 func Bootstrap() error {
@@ -72,7 +74,7 @@ func Bootstrap() error {
 	}
 
 	if config.AppCfg.Redis.Enable {
-		rdb, err := rediscli.Init(&config.AppCfg.Redis) // 修正：调用 rediscli.Init
+		rdb, err := rediscli.Init(&config.AppCfg.Redis)
 		if err != nil {
 			return fmt.Errorf("init redis failed: %w", err)
 		}
@@ -110,7 +112,7 @@ func Bootstrap() error {
 		global.Logger.Info("api gateway initialized")
 	}
 
-	// 9. 服务注册发现（最后注册，确保服务已就绪）
+	// 9. 服务注册发现 + gRPC 客户端工厂
 	if config.AppCfg.Consul.Enable {
 		client, err := registry.Init(&config.AppCfg.Consul)
 		if err != nil {
@@ -119,9 +121,9 @@ func Bootstrap() error {
 		global.Consul = client
 		global.Logger.Info("consul client initialized, service registered")
 
-		// 10. 初始化 GRPC 客户端工厂（依赖 Consul 就绪）
+		// 覆盖全局默认空实现，赋值真实连接池工厂
 		global.RpcFactory = grpcclient.NewRpcClientFactory()
-		global.Logger.Info("grpc client factory initialized")
+		global.Logger.Info("grpc client pool factory initialized")
 	}
 
 	// 执行用户注册的启动后钩子
@@ -137,6 +139,9 @@ func Bootstrap() error {
 func Run() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// 初始化参数校验器
+	validatorx.Init()
 
 	// 启动 Web 服务
 	var httpSrv *http.Server
@@ -189,36 +194,61 @@ func Run() {
 	<-quit
 	global.Logger.Info("=== shutting down service ===")
 
+	// 总关闭超时 10 秒，并行释放所有网络服务资源
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// 1. 先注销服务（ID 与注册时保持一致）
+	var wg sync.WaitGroup
+
+	// 1. 先注销 Consul 服务
 	if global.Consul != nil {
-		svcID := fmt.Sprintf("%s-web-%d", config.AppCfg.App.Name, config.AppCfg.Web.Port)
-		_ = global.Consul.Agent().ServiceDeregister(svcID)
-		global.Logger.Info("consul service deregistered", zap.String("service_id", svcID))
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			svcID := fmt.Sprintf("%s-web-%d", config.AppCfg.App.Name, config.AppCfg.Web.Port)
+			_ = global.Consul.Agent().ServiceDeregister(svcID)
+			global.Logger.Info("consul service deregistered", zap.String("service_id", svcID))
+		}()
 	}
 
-	// 2. 关闭 HTTP 与网关
+	// 2. 关闭 HTTP 服务
 	if httpSrv != nil {
-		_ = httpSrv.Shutdown(ctx)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_ = httpSrv.Shutdown(ctx)
+		}()
 	}
+
+	// 3. 关闭网关服务
 	if gatewaySrv != nil {
-		_ = gatewaySrv.Shutdown(ctx)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_ = gatewaySrv.Shutdown(ctx)
+		}()
 	}
 
-	// 3. 关闭 gRPC
+	// 4. 关闭 gRPC 服务端
 	if global.Grpc != nil {
-		global.Grpc.GracefulStop()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			global.Grpc.GracefulStop()
+		}()
 	}
 
-	// 4. 关闭数据库
+	// 等待所有网络服务关闭完成
+	wg.Wait()
+
+	// 5. 释放 gRPC 客户端连接池（核心新增）
+	global.RpcFactory.CloseAll()
+
+	// 6. 关闭存储资源
 	if global.DB != nil {
 		sqlDB, _ := global.DB.DB()
 		_ = sqlDB.Close()
 	}
-
-	// 5. 关闭 Redis
 	if global.Redis != nil {
 		_ = global.Redis.Close()
 	}

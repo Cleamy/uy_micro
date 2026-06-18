@@ -18,15 +18,21 @@ import (
 type BalanceStrategy string
 
 const (
-	BalanceRoundRobin BalanceStrategy = "round_robin" // 轮询
-	BalanceRandom     BalanceStrategy = "random"      // 随机
+	BalanceRoundRobin    BalanceStrategy = "round_robin"    // 轮询
+	BalanceRandom        BalanceStrategy = "random"         // 随机
+	cacheRefreshInterval                 = 30 * time.Second // 缓存刷新间隔
 )
 
-// 全局轮询游标：按服务隔离，并发安全
+// 全局状态变量
 var (
+	// 轮询游标，按服务+协议隔离
 	balanceIdxMap = make(map[string]int)
 	idxMu         sync.Mutex
 	rander        = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	// 服务实例本地缓存：key = 服务名_协议，value = 实例列表
+	serviceCache sync.Map
+	cacheTicker  *time.Ticker
 )
 
 // Init 初始化 Consul 客户端并自动注册当前服务
@@ -35,7 +41,6 @@ func Init(cfg *config.ConsulConfig) (*api.Client, error) {
 		return nil, nil
 	}
 
-	// 1. 创建 Consul 客户端
 	client, err := api.NewClient(&api.Config{
 		Address: cfg.Address,
 	})
@@ -43,7 +48,6 @@ func Init(cfg *config.ConsulConfig) (*api.Client, error) {
 		return nil, fmt.Errorf("create consul client failed: %w", err)
 	}
 
-	// 固定使用 Web 端口做主体注册，HTTP 健康检测
 	svcPort := global.Config.Web.Port
 	if !global.Config.Web.Enable {
 		return nil, fmt.Errorf("web server must enable for consul register health check")
@@ -54,7 +58,6 @@ func Init(cfg *config.ConsulConfig) (*api.Client, error) {
 		grpcPort = global.Config.Grpc.Port
 	}
 
-	// 2. 构造服务注册信息
 	svcID := fmt.Sprintf("%s-web-%d", global.Config.App.Name, svcPort)
 	reg := &api.AgentServiceRegistration{
 		ID:      svcID,
@@ -74,7 +77,6 @@ func Init(cfg *config.ConsulConfig) (*api.Client, error) {
 		},
 	}
 
-	// 3. 执行服务注册
 	if err := client.Agent().ServiceRegister(reg); err != nil {
 		return nil, fmt.Errorf("consul service register failed: %w", err)
 	}
@@ -86,27 +88,97 @@ func Init(cfg *config.ConsulConfig) (*api.Client, error) {
 		zap.Int("grpc_port", grpcPort),
 	)
 
+	// 启动后台缓存刷新协程
+	cacheTicker = time.NewTicker(cacheRefreshInterval)
+	go refreshCacheLoop()
+
 	return client, nil
 }
 
-// GetServiceGrpcTarget 获取服务 GRPC 地址，内置负载均衡与日志
-func GetServiceGrpcTarget(serviceName string, passingOnly bool, strategy BalanceStrategy) (string, error) {
-	// 1. 拉取健康实例列表
-	services, _, err := global.Consul.Health().Service(serviceName, "", passingOnly, nil)
-	if err != nil {
-		global.Logger.Error("registry discover service failed",
-			zap.String("service", serviceName),
-			zap.Error(err))
-		return "", fmt.Errorf("discover %s err: %w", serviceName, err)
+// 后台循环刷新所有已缓存服务的实例列表
+func refreshCacheLoop() {
+	for range cacheTicker.C {
+		serviceCache.Range(func(key, value interface{}) bool {
+			serviceKey := key.(string)
+			// 从key中还原服务名（去掉协议后缀）
+			serviceName := ""
+			if len(serviceKey) > 5 && serviceKey[len(serviceKey)-5:] == "_grpc" {
+				serviceName = serviceKey[:len(serviceKey)-5]
+			} else if len(serviceKey) > 5 && serviceKey[len(serviceKey)-5:] == "_http" {
+				serviceName = serviceKey[:len(serviceKey)-5]
+			}
+			if serviceName == "" {
+				return true
+			}
+
+			// 异步刷新，失败不覆盖旧缓存
+			services, _, err := global.Consul.Health().Service(serviceName, "", true, nil)
+			if err == nil && len(services) > 0 {
+				serviceCache.Store(serviceKey, services)
+				global.Logger.Debug("[RegistryCache] refresh service cache success",
+					zap.String("service_key", serviceKey),
+					zap.Int("instance_count", len(services)))
+			} else {
+				global.Logger.Warn("[RegistryCache] refresh service cache failed, use old cache",
+					zap.String("service_key", serviceKey),
+					zap.Error(err))
+			}
+			return true
+		})
 	}
-	if len(services) == 0 {
-		errMsg := fmt.Sprintf("no healthy instance for service [%s]", serviceName)
-		global.Logger.Error(errMsg, zap.String("service", serviceName))
-		return "", fmt.Errorf(errMsg)
+}
+
+// 通用：从缓存+Consul获取服务实例列表（带兜底）
+func getServiceInstances(serviceKey string, serviceName string, passingOnly bool) ([]*api.ServiceEntry, error) {
+	// 1. 优先读本地缓存
+	if cached, ok := serviceCache.Load(serviceKey); ok {
+		services := cached.([]*api.ServiceEntry)
+		if len(services) > 0 {
+			return services, nil
+		}
 	}
 
-	// 2. 按策略选择节点
+	// 2. 缓存未命中，实时拉取Consul
+	services, _, err := global.Consul.Health().Service(serviceName, "", passingOnly, nil)
+	if err != nil {
+		return nil, fmt.Errorf("discover service %s failed: %w", serviceName, err)
+	}
+	if len(services) == 0 {
+		return nil, fmt.Errorf("no healthy instance for service [%s]", serviceName)
+	}
+
+	// 3. 写入缓存，后续请求直接复用
+	serviceCache.Store(serviceKey, services)
+	global.Logger.Info("[RegistryCache] new service cached",
+		zap.String("service_key", serviceKey),
+		zap.Int("instance_count", len(services)))
+
+	return services, nil
+}
+
+// ==================== gRPC 服务发现 ====================
+
+// GetServiceGrpcTarget 获取服务 gRPC 地址，内置负载均衡与缓存兜底
+func GetServiceGrpcTarget(serviceName string, passingOnly bool, strategy BalanceStrategy) (string, error) {
+	serviceKey := serviceName + "_grpc"
+
+	services, err := getServiceInstances(serviceKey, serviceName, passingOnly)
+	if err != nil {
+		// Consul故障强兜底：再查一次缓存，哪怕是过期的
+		if cached, ok := serviceCache.Load(serviceKey); ok {
+			services = cached.([]*api.ServiceEntry)
+			if len(services) > 0 {
+				global.Logger.Warn("[RegistryCache] consul unavailable, fallback to cache",
+					zap.String("service", serviceName))
+			}
+		}
+		if len(services) == 0 {
+			return "", err
+		}
+	}
+
 	var selectEntry *api.ServiceEntry
+
 	switch strategy {
 	case BalanceRandom:
 		idxMu.Lock()
@@ -117,14 +189,13 @@ func GetServiceGrpcTarget(serviceName string, passingOnly bool, strategy Balance
 		fallthrough
 	default:
 		idxMu.Lock()
-		idx := balanceIdxMap[serviceName] % len(services)
+		idx := balanceIdxMap[serviceKey] % len(services)
 		selectEntry = services[idx]
-		balanceIdxMap[serviceName]++
+		balanceIdxMap[serviceKey]++
 		idxMu.Unlock()
 	}
 
 	svc := selectEntry.Service
-	// 3. 读取元数据中的 GRPC 端口
 	rpcPort, ok := svc.Meta["grpc_port"]
 	if !ok || rpcPort == "" {
 		errMsg := fmt.Sprintf("service [%s] missing grpc_port meta", serviceName)
@@ -135,8 +206,7 @@ func GetServiceGrpcTarget(serviceName string, passingOnly bool, strategy Balance
 	}
 
 	target := fmt.Sprintf("%s:%s", svc.Address, rpcPort)
-	// 负载均衡选择日志
-	global.Logger.Info("[RegistryBalance] select instance success",
+	global.Logger.Debug("[RegistryBalance] select grpc instance",
 		zap.String("service", serviceName),
 		zap.String("strategy", string(strategy)),
 		zap.String("instance_id", svc.ID),
@@ -150,23 +220,30 @@ func GetServiceGrpcTargetDefault(serviceName string, passingOnly bool) (string, 
 	return GetServiceGrpcTarget(serviceName, passingOnly, BalanceRoundRobin)
 }
 
-// GetServiceHttpTarget 获取服务 HTTP 地址，内置负载均衡（网关专用）
-func GetServiceHttpTarget(serviceName string, passingOnly bool) (string, error) {
-	return GetServiceHttpTargetWithStrategy(serviceName, passingOnly, BalanceRoundRobin)
-}
+// ==================== HTTP 服务发现（网关专用） ====================
 
-func GetServiceHttpTargetWithStrategy(serviceName string, passingOnly bool, strategy BalanceStrategy) (string, error) {
-	services, _, err := global.Consul.Health().Service(serviceName, "", passingOnly, nil)
+// GetServiceHttpTarget 获取服务 HTTP 地址，内置负载均衡与缓存兜底
+func GetServiceHttpTarget(serviceName string, passingOnly bool) (string, error) {
+	serviceKey := serviceName + "_http"
+
+	services, err := getServiceInstances(serviceKey, serviceName, passingOnly)
 	if err != nil {
-		global.Logger.Error("registry discover http service failed",
-			zap.String("service", serviceName), zap.Error(err))
-		return "", fmt.Errorf("discover %s err: %w", serviceName, err)
-	}
-	if len(services) == 0 {
-		return "", fmt.Errorf("no healthy http instance for service [%s]", serviceName)
+		// Consul故障强兜底：再查一次缓存，哪怕是过期的
+		if cached, ok := serviceCache.Load(serviceKey); ok {
+			services = cached.([]*api.ServiceEntry)
+			if len(services) > 0 {
+				global.Logger.Warn("[RegistryCache] consul unavailable, fallback to cache",
+					zap.String("service", serviceName))
+			}
+		}
+		if len(services) == 0 {
+			return "", err
+		}
 	}
 
 	var selectEntry *api.ServiceEntry
+	strategy := BalanceRoundRobin
+
 	switch strategy {
 	case BalanceRandom:
 		idxMu.Lock()
@@ -177,16 +254,16 @@ func GetServiceHttpTargetWithStrategy(serviceName string, passingOnly bool, stra
 		fallthrough
 	default:
 		idxMu.Lock()
-		idx := balanceIdxMap[serviceName+"_http"] % len(services)
+		idx := balanceIdxMap[serviceKey] % len(services)
 		selectEntry = services[idx]
-		balanceIdxMap[serviceName+"_http"]++
+		balanceIdxMap[serviceKey]++
 		idxMu.Unlock()
 	}
 
 	svc := selectEntry.Service
 	target := svc.Address + ":" + strconv.Itoa(svc.Port)
 
-	global.Logger.Info("[RegistryBalance] select http instance success",
+	global.Logger.Debug("[RegistryBalance] select http instance",
 		zap.String("service", serviceName),
 		zap.String("strategy", string(strategy)),
 		zap.String("instance_id", svc.ID),

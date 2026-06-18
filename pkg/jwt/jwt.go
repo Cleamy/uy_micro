@@ -13,7 +13,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// GenerateToken 生成JWT
+// GenerateToken 生成 JWT
 func GenerateToken(secret string, expireHour int, uid uint64) (string, error) {
 	now := time.Now()
 	exp := now.Add(time.Hour * time.Duration(expireHour))
@@ -28,9 +28,13 @@ func GenerateToken(secret string, expireHour int, uid uint64) (string, error) {
 	return token.SignedString([]byte(secret))
 }
 
-// ParseToken 解析token
+// ParseToken 解析 Token（强制校验签名算法，防御算法替换攻击）
 func ParseToken(tokenStr, secret string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		// 强制校验签名方法为 HMAC 系列，防止算法替换攻击
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing algorithm")
+		}
 		return []byte(secret), nil
 	})
 	if err != nil {

@@ -3,7 +3,6 @@ package gateway
 import (
 	"uy_micro/config"
 	"uy_micro/internal/gateway/filter"
-	"uy_micro/internal/web/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,8 +26,6 @@ func Init(cfg *config.GatewayConfig) (*gin.Engine, error) {
 	}
 	engine.Use(filter.GatewayLogMiddleware())
 
-	// 框架内置健康接口，自动注册，用户无需处理
-	middleware.RegisterHealthRoute(engine)
 
 	// 加载业务转发路由
 	loadRoutes(engine, cfg)

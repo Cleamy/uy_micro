@@ -1,15 +1,66 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"time"
 	"uy_micro/config"
+	"uy_micro/global"
 
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
+
+// gormZapLogger 自定义 GORM 日志，对接 Zap 结构化日志
+type gormZapLogger struct {
+	SlowThreshold time.Duration
+}
+
+func (l *gormZapLogger) LogMode(level logger.LogLevel) logger.Interface {
+	return l
+}
+
+func (l *gormZapLogger) Info(_ context.Context, msg string, data ...interface{}) {
+	global.Logger.Info(fmt.Sprintf(msg, data...))
+}
+
+func (l *gormZapLogger) Warn(_ context.Context, msg string, data ...interface{}) {
+	global.Logger.Warn(fmt.Sprintf(msg, data...))
+}
+
+func (l *gormZapLogger) Error(_ context.Context, msg string, data ...interface{}) {
+	global.Logger.Error(fmt.Sprintf(msg, data...))
+}
+
+func (l *gormZapLogger) Trace(_ context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
+	cost := time.Since(begin)
+	sql, rows := fc()
+
+	if err != nil {
+		global.Logger.Error("gorm sql error",
+			zap.String("sql", sql),
+			zap.Int64("rows", rows),
+			zap.Duration("cost", cost),
+			zap.Error(err))
+		return
+	}
+
+	if cost > l.SlowThreshold {
+		global.Logger.Warn("gorm slow sql",
+			zap.String("sql", sql),
+			zap.Int64("rows", rows),
+			zap.Duration("cost", cost))
+		return
+	}
+
+	global.Logger.Debug("gorm sql",
+		zap.String("sql", sql),
+		zap.Int64("rows", rows),
+		zap.Duration("cost", cost))
+}
 
 func Init(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 	if !cfg.Enable {
@@ -29,7 +80,7 @@ func Init(cfg *config.DatabaseConfig) (*gorm.DB, error) {
 	}
 
 	db, err := gorm.Open(dialector, &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: &gormZapLogger{SlowThreshold: 200 * time.Millisecond},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("open database failed: %w", err)

@@ -2,6 +2,7 @@ package observability
 
 import (
 	"os"
+	"time"
 	"uy_micro/config"
 
 	"go.uber.org/zap"
@@ -14,10 +15,22 @@ func InitLogger(cfg *config.LoggerConfig) (*zap.Logger, error) {
 	level := zap.InfoLevel
 	_ = level.UnmarshalText([]byte(cfg.Level))
 
+	// 加载上海时区
+	shanghaiLoc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		return nil, err
+	}
+
+	// 自定义本地时间格式化函数
+	localTimeEncoder := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+		enc.AppendString(t.In(shanghaiLoc).Format("2006-01-02T15:04:05.000"))
+	}
+
 	// 编码器配置
 	encoderCfg := zap.NewProductionEncoderConfig()
 	encoderCfg.TimeKey = "time"
-	encoderCfg.EncodeTime = zapcore.ISO8601TimeEncoder
+	// 替换UTC编码器为本地北京时间
+	encoderCfg.EncodeTime = localTimeEncoder
 	encoderCfg.EncodeLevel = zapcore.CapitalLevelEncoder
 
 	var encoder zapcore.Encoder
