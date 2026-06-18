@@ -2,9 +2,9 @@ package web
 
 import (
 	"os"
-	"uy_micro/config"
-	"uy_micro/internal/health"
-	"uy_micro/internal/web/middleware"
+	"github.com/Cleamy/uy_micro/config"
+	"github.com/Cleamy/uy_micro/internal/health"
+	"github.com/Cleamy/uy_micro/internal/web/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

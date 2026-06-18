@@ -3,7 +3,7 @@ package observability
 import (
 	"os"
 	"time"
-	"uy_micro/config"
+	"github.com/Cleamy/uy_micro/config"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

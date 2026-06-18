@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"uy_micro/global"
+	"github.com/Cleamy/uy_micro/global"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"

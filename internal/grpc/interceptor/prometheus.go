@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"uy_micro/pkg/metrics"
+	"github.com/Cleamy/uy_micro/pkg/metrics"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"

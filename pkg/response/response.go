@@ -1,7 +1,7 @@
 package response
 
 import (
-	"uy_micro/pkg/errcode"
+	"github.com/Cleamy/uy_micro/pkg/errcode"
 
 	"github.com/gin-gonic/gin"
 )

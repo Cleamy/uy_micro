@@ -1,8 +1,8 @@
 package gateway
 
 import (
-	"uy_micro/config"
-	"uy_micro/internal/gateway/filter"
+	"github.com/Cleamy/uy_micro/config"
+	"github.com/Cleamy/uy_micro/internal/gateway/filter"
 
 	"github.com/gin-gonic/gin"
 )

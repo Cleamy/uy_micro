@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"uy_micro/global"
+	"github.com/Cleamy/uy_micro/global"
 
 	"github.com/gin-gonic/gin"
 )

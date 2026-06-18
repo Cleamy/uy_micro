@@ -3,8 +3,8 @@ package interceptor
 import (
 	"context"
 
-	"uy_micro/global"
-	"uy_micro/pkg/tracepkg"
+	"github.com/Cleamy/uy_micro/global"
+	"github.com/Cleamy/uy_micro/pkg/tracepkg"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"

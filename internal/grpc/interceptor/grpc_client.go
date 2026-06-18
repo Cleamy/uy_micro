@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"uy_micro/global"
-	"uy_micro/pkg/errcode"
+	"github.com/Cleamy/uy_micro/global"
+	"github.com/Cleamy/uy_micro/pkg/errcode"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

@@ -2,7 +2,7 @@ package traffic
 
 import (
 	"fmt"
-	"uy_micro/config"
+	"github.com/Cleamy/uy_micro/config"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/circuitbreaker"

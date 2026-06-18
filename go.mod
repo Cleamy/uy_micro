@@ -1,4 +1,4 @@
-module uy_micro
+module github.com/Cleamy/uy_micro
 
 go 1.25.0
 

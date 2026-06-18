@@ -3,8 +3,8 @@ package filter
 import (
 	"net/http"
 	"strings"
-	"uy_micro/config"
-	"uy_micro/pkg/jwt"
+	"github.com/Cleamy/uy_micro/config"
+	"github.com/Cleamy/uy_micro/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 )

@@ -2,7 +2,7 @@ package global
 
 import (
 	"errors"
-	"uy_micro/config"
+	"github.com/Cleamy/uy_micro/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"

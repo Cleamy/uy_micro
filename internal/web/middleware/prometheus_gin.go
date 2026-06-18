@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"uy_micro/pkg/metrics"
+	"github.com/Cleamy/uy_micro/pkg/metrics"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,7 +3,7 @@ package interceptor
 import (
 	"context"
 	"time"
-	"uy_micro/global"
+	"github.com/Cleamy/uy_micro/global"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

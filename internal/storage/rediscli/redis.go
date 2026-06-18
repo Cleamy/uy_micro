@@ -3,7 +3,7 @@ package rediscli
 import (
 	"context"
 	"fmt"
-	"uy_micro/config"
+	"github.com/Cleamy/uy_micro/config"
 
 	"github.com/go-redis/redis/v8"
 )

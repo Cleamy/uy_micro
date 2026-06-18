@@ -1,9 +1,9 @@
 package grpcserver
 
 import (
-	"uy_micro/config"
+	"github.com/Cleamy/uy_micro/config"
 
-	"uy_micro/internal/grpc/interceptor"
+	"github.com/Cleamy/uy_micro/internal/grpc/interceptor"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

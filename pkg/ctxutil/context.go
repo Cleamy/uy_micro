@@ -3,7 +3,7 @@ package ctxutil
 import (
 	"context"
 
-	"uy_micro/pkg/tracepkg"
+	"github.com/Cleamy/uy_micro/pkg/tracepkg"
 
 	"github.com/gin-gonic/gin"
 )

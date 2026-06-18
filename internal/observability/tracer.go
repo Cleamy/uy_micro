@@ -1,7 +1,7 @@
 package observability
 
 import (
-	"uy_micro/config"
+	"github.com/Cleamy/uy_micro/config"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"

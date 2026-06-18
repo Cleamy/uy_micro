@@ -2,7 +2,7 @@ package filter
 
 import (
 	"net/http"
-	"uy_micro/global"
+	"github.com/Cleamy/uy_micro/global"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

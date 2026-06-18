@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"uy_micro/global"
-	"uy_micro/pkg/tracepkg"
+	"github.com/Cleamy/uy_micro/global"
+	"github.com/Cleamy/uy_micro/pkg/tracepkg"
 
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel/attribute"

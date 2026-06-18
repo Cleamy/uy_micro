@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"uy_micro/config"
-	"uy_micro/global"
+	"github.com/Cleamy/uy_micro/config"
+	"github.com/Cleamy/uy_micro/global"
 
 	"github.com/hashicorp/consul/api"
 	"go.uber.org/zap"

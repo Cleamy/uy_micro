@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"uy_micro/config"
-	"uy_micro/global"
-	"uy_micro/internal/gateway/filter"
-	"uy_micro/internal/registry"
+	"github.com/Cleamy/uy_micro/config"
+	"github.com/Cleamy/uy_micro/global"
+	"github.com/Cleamy/uy_micro/internal/gateway/filter"
+	"github.com/Cleamy/uy_micro/internal/registry"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

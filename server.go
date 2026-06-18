@@ -1,6 +1,6 @@
 package uy_micro
 
-import "uy_micro/bootstrap"
+import "github.com/Cleamy/uy_micro/bootstrap"
 
 // Server 框架全局入口实例
 var Server = &microServer{}

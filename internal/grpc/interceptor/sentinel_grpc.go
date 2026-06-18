@@ -3,7 +3,7 @@ package interceptor
 import (
 	"context"
 
-	"uy_micro/pkg/errcode"
+	"github.com/Cleamy/uy_micro/pkg/errcode"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/base"

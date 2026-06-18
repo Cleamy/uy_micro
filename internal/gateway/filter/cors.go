@@ -1,7 +1,7 @@
 package filter
 
 import (
-	"uy_micro/config"
+	"github.com/Cleamy/uy_micro/config"
 
 	"time"
 

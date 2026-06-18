@@ -2,7 +2,7 @@ package filter
 
 import (
 	"net/http"
-	"uy_micro/global"
+	"github.com/Cleamy/uy_micro/global"
 
 	sentinel "github.com/alibaba/sentinel-golang/api"
 	"github.com/alibaba/sentinel-golang/core/base"

@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"uy_micro/pkg/errcode"
-	"uy_micro/pkg/response"
-	"uy_micro/pkg/validatorx"
+	"github.com/Cleamy/uy_micro/pkg/errcode"
+	"github.com/Cleamy/uy_micro/pkg/response"
+	"github.com/Cleamy/uy_micro/pkg/validatorx"
 
 	"github.com/gin-gonic/gin"
 )

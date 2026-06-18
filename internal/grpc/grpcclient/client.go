@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
-	"uy_micro/global"
-	"uy_micro/internal/grpc/interceptor"
-	"uy_micro/internal/registry"
+	"github.com/Cleamy/uy_micro/global"
+	"github.com/Cleamy/uy_micro/internal/grpc/interceptor"
+	"github.com/Cleamy/uy_micro/internal/registry"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
