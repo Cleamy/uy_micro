@@ -1,0 +1,102 @@
+{"level":"INFO","time":"2026-06-17T19:39:02.617","caller":"uy_micro/server.go:13","msg":"=== uy_micro framework starting ==="}
+{"level":"INFO","time":"2026-06-17T19:39:02.620","caller":"uy_micro/server.go:13","msg":"database initialized"}
+{"level":"INFO","time":"2026-06-17T19:39:02.620","caller":"uy_micro/server.go:13","msg":"web engine initialized"}
+{"level":"INFO","time":"2026-06-17T19:39:02.620","caller":"uy_micro/server.go:13","msg":"grpc server initialized"}
+{"level":"INFO","time":"2026-06-17T19:39:02.622","caller":"bootstrap/bootstrap.go:179","msg":"consul service registered","service_id":"user-service-web-8083","service_name":"user-service","web_port":8083,"grpc_port":9001}
+{"level":"INFO","time":"2026-06-17T19:39:02.622","caller":"uy_micro/server.go:13","msg":"consul client initialized, service registered"}
+{"level":"INFO","time":"2026-06-17T19:39:02.622","caller":"uy_micro/server.go:13","msg":"grpc client factory initialized"}
+{"level":"INFO","time":"2026-06-17T19:39:02.654","caller":"uy_micro/server.go:13","msg":"=== all components initialized ==="}
+{"level":"INFO","time":"2026-06-17T19:39:02.655","caller":"runtime/asm_amd64.s:1693","msg":"http server running on :8083"}
+{"level":"INFO","time":"2026-06-17T19:39:02.657","caller":"runtime/asm_amd64.s:1693","msg":"grpc server running on :9001"}
+{"level":"INFO","time":"2026-06-17T19:49:59.034","caller":"uy_micro/server.go:16","msg":"=== shutting down service ==="}
+{"level":"INFO","time":"2026-06-17T19:49:59.034","caller":"runtime/asm_amd64.s:1693","msg":"consul service deregistered","service_id":"user-service-v1.0.0-9001"}
+{"level":"INFO","time":"2026-06-17T19:49:59.035","caller":"uy_micro/server.go:16","msg":"=== service exited gracefully ==="}
+{"level":"INFO","time":"2026-06-18T10:30:56.495","caller":"uy_micro/server.go:13","msg":"=== uy_micro framework starting ==="}
+{"level":"INFO","time":"2026-06-18T10:30:56.554","caller":"uy_micro/server.go:13","msg":"database initialized"}
+{"level":"INFO","time":"2026-06-18T10:30:56.554","caller":"uy_micro/server.go:13","msg":"web engine initialized"}
+{"level":"INFO","time":"2026-06-18T10:30:56.554","caller":"uy_micro/server.go:13","msg":"grpc server initialized"}
+{"level":"INFO","time":"2026-06-18T10:30:56.556","caller":"bootstrap/bootstrap.go:179","msg":"consul service registered","service_id":"user-service-web-8083","service_name":"user-service","web_port":8083,"grpc_port":9001}
+{"level":"INFO","time":"2026-06-18T10:30:56.556","caller":"uy_micro/server.go:13","msg":"consul client initialized, service registered"}
+{"level":"INFO","time":"2026-06-18T10:30:56.556","caller":"uy_micro/server.go:13","msg":"grpc client factory initialized"}
+{"level":"INFO","time":"2026-06-18T10:30:56.821","caller":"uy_micro/server.go:13","msg":"=== all components initialized ==="}
+{"level":"INFO","time":"2026-06-18T10:30:56.822","caller":"runtime/asm_amd64.s:1693","msg":"http server running on :8083"}
+{"level":"INFO","time":"2026-06-18T10:30:56.825","caller":"runtime/asm_amd64.s:1693","msg":"grpc server running on :9001"}
+{"level":"INFO","time":"2026-06-18T10:31:25.768","caller":"registry/consul.go:181","msg":"[RegistryBalance] select grpc instance success","service":"role-service","strategy":"round_robin","instance_id":"role-service-web-8084","grpc_target":"127.0.0.1:9004"}
+{"level":"INFO","time":"2026-06-18T10:31:25.768","caller":"client/role_client.go:13","msg":"[GRPC Client] start dial remote service","service":"role-service","target":"127.0.0.1:9004"}
+{"level":"INFO","time":"2026-06-18T10:31:25.769","caller":"client/role_client.go:13","msg":"[GRPC Client] dial success","service":"role-service","target":"127.0.0.1:9004"}
+{"level":"INFO","time":"2026-06-18T10:31:25.772","caller":"client/role_client.go:35","msg":"[GRPC Client] connection closed","service":"role-service","target":"127.0.0.1:9004"}
+{"level":"INFO","time":"2026-06-18T16:18:30.881","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== uy_micro framework starting ==="}
+{"level":"INFO","time":"2026-06-18T16:18:30.945","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"database initialized"}
+{"level":"INFO","time":"2026-06-18T16:18:30.945","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"web engine initialized"}
+{"level":"INFO","time":"2026-06-18T16:18:30.945","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc server initialized"}
+{"level":"INFO","time":"2026-06-18T16:18:30.949","caller":"bootstrap/bootstrap.go:117","msg":"consul service registered","service_id":"user-service-web-8083","service_name":"user-service","web_port":8083,"grpc_port":9001}
+{"level":"INFO","time":"2026-06-18T16:18:30.949","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"consul client initialized, service registered"}
+{"level":"INFO","time":"2026-06-18T16:18:30.949","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc client pool factory initialized"}
+{"level":"INFO","time":"2026-06-18T16:18:31.207","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== all components initialized ==="}
+{"level":"INFO","time":"2026-06-18T16:18:31.207","caller":"runtime/asm_amd64.s:1693","msg":"http server running on :8083"}
+{"level":"INFO","time":"2026-06-18T16:18:31.210","caller":"runtime/asm_amd64.s:1693","msg":"grpc server running on :9001"}
+{"level":"INFO","time":"2026-06-18T16:19:28.510","caller":"registry/consul.go:165","msg":"[RegistryCache] new service cached","service_key":"role-service_grpc","instance_count":1}
+{"level":"INFO","time":"2026-06-18T16:19:28.510","caller":"client/role_client.go:15","msg":"[GRPC Client] create new connection for pool","service":"role-service","target":"127.0.0.1:9004","current_total":1}
+{"level":"INFO","time":"2026-06-26T14:52:56.390","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== uy_micro framework starting ==="}
+{"level":"INFO","time":"2026-06-26T14:52:56.536","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"database initialized"}
+{"level":"INFO","time":"2026-06-26T14:52:56.537","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"web engine initialized"}
+{"level":"INFO","time":"2026-06-26T14:52:56.537","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc server initialized"}
+{"level":"INFO","time":"2026-06-26T14:54:56.371","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== uy_micro framework starting ==="}
+{"level":"INFO","time":"2026-06-26T14:54:56.377","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"database initialized"}
+{"level":"INFO","time":"2026-06-26T14:54:56.377","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"web engine initialized"}
+{"level":"INFO","time":"2026-06-26T14:54:56.377","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc server initialized"}
+{"level":"INFO","time":"2026-06-26T14:54:56.380","caller":"bootstrap/bootstrap.go:117","msg":"consul service registered","service_id":"user-service-web-8083","service_name":"user-service","web_port":8083,"grpc_port":9001}
+{"level":"INFO","time":"2026-06-26T14:54:56.380","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"consul client initialized, service registered"}
+{"level":"INFO","time":"2026-06-26T14:54:56.380","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc client pool factory initialized"}
+{"level":"WARN","time":"2026-06-26T14:54:56.657","caller":"gorm@v1.30.0/finisher_api.go:545","msg":"gorm slow sql","sql":"SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND table_type = 'BASE TABLE'","rows":1,"cost":0.276438825}
+{"level":"INFO","time":"2026-06-26T14:54:56.829","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== all components initialized ==="}
+{"level":"INFO","time":"2026-06-26T14:54:56.830","caller":"runtime/asm_amd64.s:1693","msg":"http server running on :8083"}
+{"level":"FATAL","time":"2026-06-26T14:54:56.834","caller":"uy_micro@v0.0.1-alpha/server.go:16","msg":"grpc listen failed","error":"listen tcp :9001: bind: address already in use"}
+{"level":"INFO","time":"2026-06-26T14:56:52.271","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== uy_micro framework starting ==="}
+{"level":"INFO","time":"2026-06-26T14:56:52.276","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"database initialized"}
+{"level":"INFO","time":"2026-06-26T14:56:52.277","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"web engine initialized"}
+{"level":"INFO","time":"2026-06-26T14:56:52.277","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc server initialized"}
+{"level":"INFO","time":"2026-06-26T14:56:52.278","caller":"bootstrap/bootstrap.go:117","msg":"consul service registered","service_id":"user-service-web-2200","service_name":"user-service","web_port":2200,"grpc_port":1200}
+{"level":"INFO","time":"2026-06-26T14:56:52.279","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"consul client initialized, service registered"}
+{"level":"INFO","time":"2026-06-26T14:56:52.279","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc client pool factory initialized"}
+{"level":"INFO","time":"2026-06-26T14:56:52.340","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== all components initialized ==="}
+{"level":"INFO","time":"2026-06-26T14:56:52.341","caller":"runtime/asm_amd64.s:1693","msg":"http server running on :2200"}
+{"level":"INFO","time":"2026-06-26T14:56:52.345","caller":"runtime/asm_amd64.s:1693","msg":"grpc server running on :1200"}
+{"level":"INFO","time":"2026-06-26T15:18:55.686","caller":"registry/consul.go:165","msg":"[RegistryCache] new service cached","service_key":"role-service_grpc","instance_count":1}
+{"level":"INFO","time":"2026-06-26T15:18:55.686","caller":"client/role_client.go:15","msg":"[GRPC Client] create new connection for pool","service":"role-service","target":"127.0.0.1:2110","current_total":1}
+{"level":"INFO","time":"2026-06-26T15:19:37.726","caller":"uy_micro@v0.0.1-alpha/server.go:16","msg":"=== shutting down service ==="}
+{"level":"INFO","time":"2026-06-26T15:19:37.728","caller":"runtime/asm_amd64.s:1693","msg":"consul service deregistered","service_id":"user-service-web-2200"}
+{"level":"INFO","time":"2026-06-26T15:19:37.728","caller":"sync/hashtriemap.go:512","msg":"[GRPC Client] connection pool cleared","service":"role-service"}
+{"level":"INFO","time":"2026-06-26T15:19:37.728","caller":"uy_micro@v0.0.1-alpha/server.go:16","msg":"=== service exited gracefully ==="}
+{"level":"INFO","time":"2026-06-26T15:19:42.457","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== uy_micro framework starting ==="}
+{"level":"INFO","time":"2026-06-26T15:19:42.463","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"database initialized"}
+{"level":"INFO","time":"2026-06-26T15:19:42.463","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"web engine initialized"}
+{"level":"INFO","time":"2026-06-26T15:19:42.463","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc server initialized"}
+{"level":"INFO","time":"2026-06-26T15:19:42.465","caller":"bootstrap/bootstrap.go:117","msg":"consul service registered","service_id":"user-service-web-2200","service_name":"user-service","web_port":2200,"grpc_port":1200}
+{"level":"INFO","time":"2026-06-26T15:19:42.465","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"consul client initialized, service registered"}
+{"level":"INFO","time":"2026-06-26T15:19:42.465","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc client pool factory initialized"}
+{"level":"INFO","time":"2026-06-26T15:19:42.518","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== all components initialized ==="}
+{"level":"INFO","time":"2026-06-26T15:19:42.518","caller":"runtime/asm_amd64.s:1693","msg":"http server running on :2200"}
+{"level":"INFO","time":"2026-06-26T15:19:42.521","caller":"runtime/asm_amd64.s:1693","msg":"grpc server running on :1200"}
+{"level":"INFO","time":"2026-06-26T15:20:18.293","caller":"registry/consul.go:165","msg":"[RegistryCache] new service cached","service_key":"role-service_grpc","instance_count":1}
+{"level":"INFO","time":"2026-06-26T15:20:18.293","caller":"client/role_client.go:15","msg":"[GRPC Client] create new connection for pool","service":"role-service","target":"127.0.0.1:2110","current_total":1}
+{"level":"INFO","time":"2026-06-26T15:22:37.272","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== uy_micro framework starting ==="}
+{"level":"INFO","time":"2026-06-26T15:22:37.277","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"database initialized"}
+{"level":"INFO","time":"2026-06-26T15:22:37.277","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"web engine initialized"}
+{"level":"INFO","time":"2026-06-26T15:22:37.277","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc server initialized"}
+{"level":"INFO","time":"2026-06-26T15:22:37.279","caller":"bootstrap/bootstrap.go:117","msg":"consul service registered","service_id":"user-service-web-2201","service_name":"user-service","web_port":2201,"grpc_port":1201}
+{"level":"INFO","time":"2026-06-26T15:22:37.279","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"consul client initialized, service registered"}
+{"level":"INFO","time":"2026-06-26T15:22:37.279","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"grpc client pool factory initialized"}
+{"level":"INFO","time":"2026-06-26T15:22:37.382","caller":"uy_micro@v0.0.1-alpha/server.go:13","msg":"=== all components initialized ==="}
+{"level":"INFO","time":"2026-06-26T15:22:37.382","caller":"runtime/asm_amd64.s:1693","msg":"http server running on :2201"}
+{"level":"INFO","time":"2026-06-26T15:22:37.385","caller":"runtime/asm_amd64.s:1693","msg":"grpc server running on :1201"}
+{"level":"INFO","time":"2026-06-26T15:22:54.750","caller":"registry/consul.go:165","msg":"[RegistryCache] new service cached","service_key":"role-service_grpc","instance_count":1}
+{"level":"INFO","time":"2026-06-26T15:22:54.750","caller":"client/role_client.go:15","msg":"[GRPC Client] create new connection for pool","service":"role-service","target":"127.0.0.1:2110","current_total":1}
+{"level":"INFO","time":"2026-06-26T15:25:12.441","caller":"uy_micro@v0.0.1-alpha/server.go:16","msg":"=== shutting down service ==="}
+{"level":"INFO","time":"2026-06-26T15:25:12.442","caller":"runtime/asm_amd64.s:1693","msg":"consul service deregistered","service_id":"user-service-web-2201"}
+{"level":"INFO","time":"2026-06-26T15:25:12.443","caller":"sync/hashtriemap.go:512","msg":"[GRPC Client] connection pool cleared","service":"role-service"}
+{"level":"INFO","time":"2026-06-26T15:25:12.443","caller":"uy_micro@v0.0.1-alpha/server.go:16","msg":"=== service exited gracefully ==="}
+{"level":"INFO","time":"2026-06-26T15:25:16.824","caller":"uy_micro@v0.0.1-alpha/server.go:16","msg":"=== shutting down service ==="}
+{"level":"INFO","time":"2026-06-26T15:25:16.825","caller":"runtime/asm_amd64.s:1693","msg":"consul service deregistered","service_id":"user-service-web-2200"}
+{"level":"INFO","time":"2026-06-26T15:25:16.826","caller":"sync/hashtriemap.go:512","msg":"[GRPC Client] connection pool cleared","service":"role-service"}
+{"level":"INFO","time":"2026-06-26T15:25:16.826","caller":"uy_micro@v0.0.1-alpha/server.go:16","msg":"=== service exited gracefully ==="}
