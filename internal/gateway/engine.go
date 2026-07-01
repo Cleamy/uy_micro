@@ -26,7 +26,6 @@ func Init(cfg *config.GatewayConfig) (*gin.Engine, error) {
 	}
 	engine.Use(filter.GatewayLogMiddleware())
 
-
 	// 加载业务转发路由
 	loadRoutes(engine, cfg)
 	return engine, nil

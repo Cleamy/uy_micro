@@ -2,6 +2,7 @@ package filter
 
 import (
 	"net/http"
+
 	"github.com/Cleamy/uy_micro/global"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,8 @@ import (
 )
 
 func IPBlacklistMiddleware(blackIP []string) gin.HandlerFunc {
-	ipMap := make(map[string]bool)
+
+	ipMap := map[string]bool{}
 	for _, ip := range blackIP {
 		ipMap[ip] = true
 	}

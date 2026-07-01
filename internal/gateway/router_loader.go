@@ -21,6 +21,7 @@ import (
 func loadRoutes(engine *gin.Engine, cfg *config.GatewayConfig) {
 	rootGroup := engine.Group(cfg.ContextPath)
 
+	// 遍历 路由表
 	for _, route := range cfg.Routes {
 		routeCopy := route
 		middlewares := make([]gin.HandlerFunc, 0)
@@ -29,17 +30,19 @@ func loadRoutes(engine *gin.Engine, cfg *config.GatewayConfig) {
 		if routeCopy.AuthEnable && cfg.Auth.Enable {
 			middlewares = append(middlewares, filter.AuthMiddleware(&cfg.Auth))
 		}
-		// 路由级限流
+		// 路由级限流 --> 后续转为 子服务的 sentinel 总设置
 		if routeCopy.RateLimit {
 			middlewares = append(middlewares, filter.SentinelLimitMiddleware(routeCopy.ID))
 		}
 
 		// 反向代理核心逻辑
 		proxyHandler := func(c *gin.Context) {
+			// 目标url
 			var target *url.URL
 			var err error
 
 			// 服务发现模式：复用框架负载均衡能力
+			// 从consul 中 获取服务的ip
 			if routeCopy.ServiceName != "" && global.Consul != nil {
 				httpTarget, err := registry.GetServiceHttpTarget(routeCopy.ServiceName, true)
 				if err != nil {
@@ -47,6 +50,7 @@ func loadRoutes(engine *gin.Engine, cfg *config.GatewayConfig) {
 					c.Abort()
 					return
 				}
+				// 加上 http
 				target, err = url.Parse("http://" + httpTarget)
 				if err != nil {
 					c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "parse target address failed"})
@@ -65,6 +69,7 @@ func loadRoutes(engine *gin.Engine, cfg *config.GatewayConfig) {
 
 			// 带超时的转发客户端，避免下游阻塞拖垮网关
 			proxy := httputil.NewSingleHostReverseProxy(target)
+			// 设置限速
 			proxy.Transport = &http.Transport{
 				ResponseHeaderTimeout: 30 * time.Second,
 				IdleConnTimeout:       90 * time.Second,
@@ -102,7 +107,7 @@ func loadRoutes(engine *gin.Engine, cfg *config.GatewayConfig) {
 		}
 
 		// 路由追加通配符，支持前缀剥离与子路径转发
-		fullPath := routeCopy.Path + "/*filepath"
+		fullPath := routeCopy.Path + "/**"
 		rootGroup.Any(fullPath, append(middlewares, proxyHandler)...)
 	}
 }

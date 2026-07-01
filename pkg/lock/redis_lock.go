@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Cleamy/uy_micro/global"
+	"go.uber.org/zap"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -162,4 +163,20 @@ func (l *RedisLock) stopWatchDog() {
 	if l.watchDogCancel != nil {
 		l.watchDogCancel()
 	}
+}
+
+// SafeRun 自动加锁、执行函数、异常自动解锁
+func (l *RedisLock) SafeRun(ctx context.Context, waitTimeout time.Duration, fn func() error) error {
+	if err := l.Lock(ctx, waitTimeout); err != nil {
+		return err
+	}
+
+	defer func() {
+		_ = l.Unlock()
+		if r := recover(); r != nil {
+			global.Logger.Error("dist lock panic recovered, auto unlock", zap.Any("panic", r), zap.Stack("stack"))
+		}
+	}()
+
+	return fn()
 }
